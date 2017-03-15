@@ -3,18 +3,19 @@ package com.lukasblakk.nytimessearch.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 
 import com.lukasblakk.nytimessearch.R;
 import com.lukasblakk.nytimessearch.adapters.ArticleArrayAdapter;
+import com.lukasblakk.nytimessearch.listeners.EndlessRecyclerViewScrollListener;
 import com.lukasblakk.nytimessearch.models.Article;
 
 import org.json.JSONArray;
@@ -33,12 +34,14 @@ import okhttp3.Response;
 
 public class SearchActivity extends AppCompatActivity {
 
+    private EndlessRecyclerViewScrollListener scrollListener;
+
     EditText etQuery;
     Button btnSearch;
-    GridView gvResults;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+    RecyclerView rvArticles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,63 +50,51 @@ public class SearchActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setupViews();
-    }
 
-    public void setupViews() {
-        etQuery = (EditText) findViewById(R.id.etQuery);
-        btnSearch = (Button) findViewById(R.id.btnSearch);
-        gvResults = (GridView) findViewById(R.id.gvResults);
-        articles = new ArrayList<>();
+        rvArticles = (RecyclerView) findViewById(R.id.rvArticles);
         adapter = new ArticleArrayAdapter(this, articles);
-        gvResults.setAdapter(adapter);
+        rvArticles.setAdapter(adapter);
+        // First param is number of columns and second param is orientation i.e Vertical or Horizontal
+        StaggeredGridLayoutManager gridLayoutManager =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        // Attach the layout manager to the recycler view
+        rvArticles.setLayoutManager(gridLayoutManager);
 
-        // hook up listener for grid click
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//        // hook up listener for grid click
+//        rvArticles.setOnClickListener(new RecyclerView.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//
+//        });
+
+        scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                // create an intent to display the article
-                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
-                // get the article to display
-                Article article = articles.get(position);
-                // pass in that article to the intent
-                i.putExtra("article", article);
-                // launch the activity
-                startActivity(i);
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                loadNextDataFromApi(page);
             }
-        });
+        };
+        // Adds the scroll listener to RecyclerView
+        rvArticles.addOnScrollListener(scrollListener);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
-    }
+    // Append the next page of data into the adapter
+    private void loadNextDataFromApi(final int offset) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void onArticleSearch(View view) {
+        // Send an API request to retrieve appropriate paginated data
+        //  --> Send the request including an offset value (i.e `page`) as a query parameter.
+        //  --> Deserialize and construct new model objects from the API response
+        //  --> Append the new data objects to the existing set of items inside the array of items
+        //  --> Notify the adapter of the new items made with `notifyItemRangeInserted()`
         String query = etQuery.getText().toString();
-
         // should be a singleton
         OkHttpClient client = new OkHttpClient();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.nytimes.com/svc/search/v2/articlesearch.json").newBuilder();
         urlBuilder.addQueryParameter("api-key", "3456a86ca8b544179487d82c38862881");
-        urlBuilder.addQueryParameter("page", "0");
+        urlBuilder.addQueryParameter("page", Integer.toString(offset));
         urlBuilder.addQueryParameter("q", query);
         String url = urlBuilder.build().toString();
 
@@ -132,10 +123,19 @@ public class SearchActivity extends AppCompatActivity {
                         JSONArray articleJsonResults = null;
 
                         try {
+                            int curSize = articles.size();
                             JSONObject json = new JSONObject(responseData);
                             articleJsonResults =json.getJSONObject("response").getJSONArray("docs");
                             articles.addAll(Article.fromJSONArray(articleJsonResults));
-                            adapter.notifyDataSetChanged();
+                            // Create adapter passing in the sample user data
+                            // New adapter if page is 0 (new search) otherwise add to existing
+                            if (offset == 0) {
+                                adapter = new ArticleArrayAdapter(getApplicationContext(), articles);
+                                rvArticles.setAdapter(adapter);
+                            } else {
+                                adapter.notifyItemRangeInserted(curSize, articles.size() - 1);
+                            }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -144,6 +144,46 @@ public class SearchActivity extends AppCompatActivity {
             }
 
         });
+    }
 
+    public void setupViews() {
+        etQuery = (EditText) findViewById(R.id.etQuery);
+        btnSearch = (Button) findViewById(R.id.btnSearch);
+        articles = new ArrayList<>();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onArticleSearch(View view) {
+        // Clear the old data
+        articles.clear();
+        // Notify the adapter of the update
+        adapter.notifyDataSetChanged();
+        // Reset endless scroll listener as we'll be performing a new search
+        scrollListener.resetState();
+
+        // call loadNextDataFromAPI here for initial search results
+        loadNextDataFromApi(0);
     }
 }
