@@ -70,7 +70,7 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         // Return a new holder instance
         ViewHolder viewHolder = new ViewHolder(articleView);
         return viewHolder;
-    }git 
+    }
 
     // Involves populating data into the item through holder
     @Override
