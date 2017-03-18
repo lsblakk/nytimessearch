@@ -4,4 +4,5 @@
     <string name="query">Enter search query</string>
     <string name="search">Search</string>
     <string name="title_activity_article">ArticleActivity</string>
+    <string name="share">Share</string>
 </resources>

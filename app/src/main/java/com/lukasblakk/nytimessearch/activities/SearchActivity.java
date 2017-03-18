@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -36,12 +38,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.lukasblakk.nytimessearch.R.string.search;
+
 public class SearchActivity extends AppCompatActivity {
 
     private EndlessRecyclerViewScrollListener scrollListener;
 
     EditText etQuery;
     Button btnSearch;
+    String query;
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
@@ -94,6 +99,7 @@ public class SearchActivity extends AppCompatActivity {
 
     // Append the next page of data into the adapter
     private void loadNextDataFromApi(final int offset) {
+        Log.d("DEBUG page: ", Integer.toString(offset));
 
         // Send an API request to retrieve appropriate paginated data
         //  --> Send the request including an offset value (i.e `page`) as a query parameter.
@@ -174,7 +180,8 @@ public class SearchActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
