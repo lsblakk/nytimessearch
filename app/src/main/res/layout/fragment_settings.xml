@@ -8,10 +8,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvDate"
         android:text="@string/date"/>
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/etDatePicker"/>
+        android:id="@+id/tvDateChosen"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -43,6 +43,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/cbSports"
         android:text="@string/sports"/>
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnSave"
+        android:text="@string/save"/>
 
 </LinearLayout>

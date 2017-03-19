@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.lukasblakk.nytimessearch.R;
 import com.lukasblakk.nytimessearch.adapters.ArticleArrayAdapter;
@@ -38,7 +39,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements SettingsDialogFragment.SettingsDialogListener {
 
     private EndlessRecyclerViewScrollListener scrollListener;
 
@@ -249,4 +250,10 @@ public class SearchActivity extends AppCompatActivity {
             // put some kind of message for internet not available?
         }
     }
+
+    @Override
+    public void onFinishSettingsDialog(String datePicked, String sortOrder, String topics) {
+        Toast.makeText(this, "Settings are - Date: " + datePicked + " Sort Order: " + sortOrder + " Topics: " + topics , Toast.LENGTH_LONG).show();
+    }
+
 }

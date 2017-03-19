@@ -11,4 +11,10 @@
     <string name="fashion"><![CDATA[Fashion & Style]]></string>
     <string name="sports">Sports</string>
     <string name="date">Begin Date</string>
+    <string name="no_value">--</string>
+    <string name="date_picker_result_value">%1$s\\%2$s\\%3$s</string>
+    <string name="save">Save</string>
+    <string name="sort_sports">&amp;fq=news_desk:(\"Sports\")</string>
+    <string name="sort_arts">&amp;fq=news_desk:(\"Arts\")</string>
+    <string name="sort_fashion">&amp;fq=news_desk:(\"Fashion &amp; Style\")</string>
 </resources>
