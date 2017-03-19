@@ -5,4 +5,10 @@
     <string name="search">Search</string>
     <string name="title_activity_article">ArticleActivity</string>
     <string name="share">Share</string>
+    <string name="sortOrder">Sort Order</string>
+    <string name="newsTopics">News Desk Topics</string>
+    <string name="arts">Arts</string>
+    <string name="fashion"><![CDATA[Fashion & Style]]></string>
+    <string name="sports">Sports</string>
+    <string name="date">Begin Date</string>
 </resources>

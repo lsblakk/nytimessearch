@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 
 import com.lukasblakk.nytimessearch.R;
 import com.lukasblakk.nytimessearch.adapters.ArticleArrayAdapter;
+import com.lukasblakk.nytimessearch.fragments.SettingsDialogFragment;
 import com.lukasblakk.nytimessearch.listeners.EndlessRecyclerViewScrollListener;
 import com.lukasblakk.nytimessearch.listeners.ItemClickSupport;
 import com.lukasblakk.nytimessearch.models.Article;
@@ -35,8 +37,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static android.os.Build.VERSION_CODES.M;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -90,6 +90,12 @@ public class SearchActivity extends AppCompatActivity {
         };
         // Adds the scroll listener to RecyclerView
         rvArticles.addOnScrollListener(scrollListener);
+    }
+
+    private void showSettingsDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance();
+        settingsDialogFragment.show(fm, "fragement_settings");
     }
 
     // Append the next page of data into the adapter
@@ -148,6 +154,7 @@ public class SearchActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // do the filter here
+                showSettingsDialog();
                 return true;
             case R.id.action_search:
                 final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
