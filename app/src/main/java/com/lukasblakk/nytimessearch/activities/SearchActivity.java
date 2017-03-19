@@ -15,8 +15,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
 
 import com.lukasblakk.nytimessearch.R;
 import com.lukasblakk.nytimessearch.adapters.ArticleArrayAdapter;
@@ -38,19 +36,16 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.lukasblakk.nytimessearch.R.string.search;
+import static android.os.Build.VERSION_CODES.M;
 
 public class SearchActivity extends AppCompatActivity {
 
     private EndlessRecyclerViewScrollListener scrollListener;
 
-    EditText etQuery;
-    Button btnSearch;
-    String query;
-
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
     RecyclerView rvArticles;
+    String stQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,21 +95,100 @@ public class SearchActivity extends AppCompatActivity {
     // Append the next page of data into the adapter
     private void loadNextDataFromApi(final int offset) {
         Log.d("DEBUG page: ", Integer.toString(offset));
+        fetchArticles(offset);
+    }
 
-        // Send an API request to retrieve appropriate paginated data
-        //  --> Send the request including an offset value (i.e `page`) as a query parameter.
-        //  --> Deserialize and construct new model objects from the API response
-        //  --> Append the new data objects to the existing set of items inside the array of items
-        //  --> Notify the adapter of the new items made with `notifyItemRangeInserted()`
+    public void setupViews() {
+        articles = new ArrayList<>();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                stQuery = query;
+                // Clear the old data
+                articles.clear();
+                // Notify the adapter of the update
+                adapter.notifyDataSetChanged();
+                // Reset endless scroll listener as we'll be performing a new search
+                scrollListener.resetState();
+
+                // call loadNextDataFromAPI here for initial search results
+                loadNextDataFromApi(0);
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // do the filter here
+                return true;
+            case R.id.action_search:
+                final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+                // Expand the search view and request focus
+                item.expandActionView();
+                searchView.requestFocus();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public void fetchArticles(final int offset) {
+
+
         if (isNetworkAvailable() && isOnline()) {
-            String query = etQuery.getText().toString();
             // should be a singleton
             OkHttpClient client = new OkHttpClient();
 
             HttpUrl.Builder urlBuilder = HttpUrl.parse("https://api.nytimes.com/svc/search/v2/articlesearch.json").newBuilder();
             urlBuilder.addQueryParameter("api-key", "3456a86ca8b544179487d82c38862881");
             urlBuilder.addQueryParameter("page", Integer.toString(offset));
-            urlBuilder.addQueryParameter("q", query);
+            urlBuilder.addQueryParameter("q", stQuery);
             String url = urlBuilder.build().toString();
 
             Request request = new Request.Builder()
@@ -167,65 +241,5 @@ public class SearchActivity extends AppCompatActivity {
         } else {
             // put some kind of message for internet not available?
         }
-    }
-
-    public void setupViews() {
-        etQuery = (EditText) findViewById(R.id.etQuery);
-        btnSearch = (Button) findViewById(R.id.btnSearch);
-        articles = new ArrayList<>();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void onArticleSearch(View view) {
-        // Clear the old data
-        articles.clear();
-        // Notify the adapter of the update
-        adapter.notifyDataSetChanged();
-        // Reset endless scroll listener as we'll be performing a new search
-        scrollListener.resetState();
-
-        // call loadNextDataFromAPI here for initial search results
-        loadNextDataFromApi(0);
-    }
-
-    private Boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-    }
-
-    public boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
-        return false;
     }
 }

@@ -9,37 +9,13 @@
     tools:context="com.lukasblakk.nytimessearch.activities.SearchActivity"
     tools:showIn="@layout/activity_search">
 
-    <EditText
-        android:id="@+id/etQuery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/query"
-        android:inputType="textPersonName"
-        android:padding="5dp"
-        tools:ignore="MissingConstraints"
-        android:layout_alignBaseline="@+id/btnSearch"
-        android:layout_alignBottom="@+id/btnSearch"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:id="@+id/btnSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/search"
-        android:onClick="onArticleSearch"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="59dp" />
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvArticles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/btnSearch" />
+        android:layout_marginTop="60dp" />
 
 </RelativeLayout>
