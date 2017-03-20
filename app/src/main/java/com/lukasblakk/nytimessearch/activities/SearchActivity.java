@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.lukasblakk.nytimessearch.R;
@@ -53,6 +54,8 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
     String beginDate;
     String sortBy;
     ArrayList<String> newsDesks;
+    MenuItem miActionProgressItem;
+    MenuItem miFilterItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,12 +133,27 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
 
     }
 
+    public void showProgressBar() {
+        // Show progress item
+        miActionProgressItem.setVisible(true);
+        miFilterItem.setVisible(false);
+    }
+
+    public void hideProgressBar() {
+        // Hide progress item
+        miActionProgressItem.setVisible(false);
+        miFilterItem.setVisible(true);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search, menu);
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        // Store instance of the menu item containing progress
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        miFilterItem = menu.findItem(R.id.action_filter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -232,6 +250,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
 
             // Get a handler that can be used to post to the main thread
             final Handler handler = new Handler();
+            showProgressBar();
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -261,6 +280,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
                                 JSONObject json = new JSONObject(responseData);
                                 articleJsonResults = json.getJSONObject("response").getJSONArray("docs");
                                 articles.addAll(Article.fromJSONArray(articleJsonResults));
+                                hideProgressBar();
                                 // Create adapter passing in the sample user data
                                 // New adapter if page is 0 (new search) otherwise add to existing
                                 if (offset == 0) {
