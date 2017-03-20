@@ -59,6 +59,7 @@ So many challenges with trying to make the output look nice.  Using the Staggere
 
 - [OkHttp](https://github.com/square/okhttp) - An HTTP+HTTP/2 client for Android and Java applications
 - [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [Parceler](http://parceler.org/) - code generation library that generates the Android Parcelable boilerplate source code
 
 ## License
 
