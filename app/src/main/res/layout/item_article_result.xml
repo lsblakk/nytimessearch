@@ -7,8 +7,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/ivImage"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
         android:src="@mipmap/ic_launcher" />
 
     <TextView
@@ -16,7 +14,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvTitle"
         android:text="TextView"
+        android:textColor="@color/colorAccent"
         android:maxLines="2"
         android:ellipsize="end"/>
+
+    <TextView
+        android:id="@+id/tvArticleContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 
 </LinearLayout>

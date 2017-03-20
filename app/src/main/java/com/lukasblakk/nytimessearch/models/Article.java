@@ -16,8 +16,13 @@ import java.util.Random;
 public class Article {
 
     String headline;
+    String snippet;
     String webUrl;
     String thumbNail;
+
+    public String getSnippet() { return snippet; }
+
+    public void setSnippet(String snippet) { this.snippet = snippet; }
 
     public void setHeadline(String headline) {
         this.headline = headline;
@@ -52,6 +57,7 @@ public class Article {
 
         this.webUrl = jsonObject.getString("web_url");
         this.headline = jsonObject.getJSONObject("headline").getString("main");
+        this.snippet = jsonObject.getString("snippet");
 
         JSONArray multimedia = jsonObject.getJSONArray("multimedia");
         if (multimedia.length() > 0) {

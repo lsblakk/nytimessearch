@@ -30,6 +30,7 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         // for any view that will be set as you render a row
         public TextView tvTitle;
         public ImageView ivImage;
+        public TextView tvArticleContent;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -40,6 +41,7 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
 
             tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
             ivImage = (ImageView) itemView.findViewById(R.id.ivImage);
+            tvArticleContent = (TextView) itemView.findViewById(R.id.tvArticleContent);
         }
     }
 
@@ -81,6 +83,9 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         // Set item views based on your views and data model
         TextView tvTitle = viewHolder.tvTitle;
         tvTitle.setText(article.getHeadline());
+
+        TextView tvArticleContent = viewHolder.tvArticleContent;
+        tvArticleContent.setText(article.getSnippet());
 
         // find the image view
         ImageView imageView = viewHolder.ivImage;
