@@ -2,7 +2,7 @@
 
 **NY Times Search** is an android app that allows a user to search for articles on web using simple filters. The app utilizes [New York Times Search API](http://developer.nytimes.com/docs/read/article_search_api_v2).
 
-Time spent: **15** hours spent in total
+Time spent: **17** hours spent in total
 
 ## User Stories
 
@@ -41,18 +41,19 @@ The following **bonus** features are implemented:
 The following **additional** features are implemented:
 
 * [x] Using [OkHttp](https://github.com/square/okhttp) networking library instead of android-async-http for API calls
+* [x] Let the user know when there are no search results available
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/lsblakk/flickster/blob/master/nytimes_screencap.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+So many challenges with trying to make the output look nice.  Using the StaggeredGridLayout but not really clear on how to style the items (yet).
 
 ## Open-source libraries used
 

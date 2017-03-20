@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.lukasblakk.nytimessearch.R;
 import com.lukasblakk.nytimessearch.adapters.ArticleArrayAdapter;
+import com.lukasblakk.nytimessearch.decorations.SpacesItemDecoration;
 import com.lukasblakk.nytimessearch.fragments.SettingsDialogFragment;
 import com.lukasblakk.nytimessearch.listeners.EndlessRecyclerViewScrollListener;
 import com.lukasblakk.nytimessearch.listeners.ItemClickSupport;
@@ -63,6 +65,11 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
         rvArticles = (RecyclerView) findViewById(R.id.rvArticles);
         adapter = new ArticleArrayAdapter(this, articles);
         rvArticles.setAdapter(adapter);
+
+        RecyclerView.ItemDecoration itemDecoration = new
+                SpacesItemDecoration(16);
+        rvArticles.addItemDecoration(itemDecoration);
+
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -157,7 +164,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
         int id = item.getItemId();
 
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_filter:
                 // do the filter here
                 showSettingsDialog();
                 return true;
@@ -224,6 +231,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
                     .build();
 
             // Get a handler that can be used to post to the main thread
+            final Handler handler = new Handler();
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -233,7 +241,11 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
                 @Override
                 public void onResponse(Call call, final Response response) throws IOException {
                     if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
+                        if (response.code() == 429) {
+                            // retry the call here
+                        } else {
+                            throw new IOException("Unexpected code " + response);
+                        }
 
                     // Read data on the worker thread
                     final String responseData = response.body().string();

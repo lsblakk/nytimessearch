@@ -1,52 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    android:orientation="vertical"
+    android:paddingLeft="10sp"
+    android:paddingRight="10sp">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/tvDate"
-        android:text="@string/date"/>
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tvDateChosen"/>
+        android:text="@string/date"
+        android:textSize="@dimen/medium_font_size_header"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorAccent"/>
 
     <TextView
+        android:id="@+id/tvDateChosen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvDate"/>
+
+    <TextView
         android:id="@+id/tvSortOrder"
-        android:text="@string/sortOrder"/>
-    <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/sortOrder"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/medium_font_size_header"
+        android:layout_below="@+id/tvDateChosen"
+        android:textColor="@color/colorAccent"/>
+
+    <Spinner
         android:id="@+id/spinnerSortOrder"
-        android:entries="@array/sort_order_array">
-    </Spinner>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/sort_order_array"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tvSortOrder"></Spinner>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/newsTopics"/>
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cbArts"
-        android:text="@string/arts"/>
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cbFashion"
-        android:text="@string/fashion"/>
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cbSports"
-        android:text="@string/sports"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btnSave"
-        android:text="@string/save"/>
+        android:text="@string/newsTopics"
+        android:textSize="@dimen/medium_font_size_header"
+        android:id="@+id/tvNewsDesk"
+        android:layout_below="@+id/spinnerSortOrder"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorAccent"/>
 
-</LinearLayout>
+    <CheckBox
+        android:id="@+id/cbArts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/arts"
+        android:layout_below="@+id/tvNewsDesk"
+        android:layout_alignLeft="@+id/cbFashion"
+        android:layout_alignStart="@+id/cbFashion" />
+
+    <CheckBox
+        android:id="@+id/cbFashion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fashion"
+        android:layout_below="@+id/cbArts"
+        android:layout_centerHorizontal="true" />
+
+    <CheckBox
+        android:id="@+id/cbSports"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sports"
+        android:layout_below="@+id/cbFashion"
+        android:layout_alignLeft="@+id/cbFashion"
+        android:layout_alignStart="@+id/cbFashion" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cbSports"
+        android:text="@string/save"
+        android:backgroundTint="@color/colorAccent"/>
+
+</RelativeLayout>
