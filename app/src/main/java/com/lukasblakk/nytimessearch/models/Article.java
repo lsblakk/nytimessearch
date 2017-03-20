@@ -3,6 +3,7 @@ package com.lukasblakk.nytimessearch.models;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ import java.util.Random;
 /**
  * Created by lukas on 3/13/17.
  */
-
-public class Article implements Serializable {
+@Parcel
+public class Article {
 
     String headline;
     String webUrl;
@@ -42,6 +43,10 @@ public class Article implements Serializable {
         return thumbNail;
     }
 
+    // empty constructor needed by the Parceler library
+    public Article() {
+
+    }
 
     public Article(JSONObject jsonObject) throws JSONException {
 

@@ -28,6 +28,7 @@ import com.lukasblakk.nytimessearch.models.Article;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
                         // get the article to display
                         Article article = articles.get(position);
                         // pass in that article to the intent
-                        i.putExtra("article", article);
+                        i.putExtra("article", Parcels.wrap(article));
                         // launch the activity
                         startActivity(i);
                     }
