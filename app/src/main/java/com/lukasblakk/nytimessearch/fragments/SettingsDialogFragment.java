@@ -1,7 +1,6 @@
 package com.lukasblakk.nytimessearch.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,7 +36,7 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
 
 
     public interface SettingsDialogListener {
-        void onFinishSettingsDialog(String datePicked, String sortOrder, String topics);
+        void onFinishSettingsDialog(String datePicked, String sortOrder, ArrayList<String> topics);
     }
 
     @Override
@@ -54,9 +53,7 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
         super.onViewCreated(view, savedInstanceState);
-
     }
 
     // Defines a listener for every time a checkbox is checked or unchecked
@@ -69,23 +66,23 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
             switch(view.getId()) {
                 case R.id.cbArts:
                     if (checked) {
-                        mTopics.add(getString(R.string.sort_arts));
+                        mTopics.add(getString(R.string.arts));
                     } else {
-                        mTopics.remove(getString(R.string.sort_arts));
+                        mTopics.remove(getString(R.string.arts));
                     }
                     break;
                 case R.id.cbFashion:
                     if (checked) {
-                        mTopics.add(getString(R.string.sort_fashion));
+                        mTopics.add(getString(R.string.fashion));
                     } else {
-                        mTopics.remove(getString(R.string.sort_fashion));
+                        mTopics.remove(getString(R.string.fashion));
                     }
                     break;
                 case R.id.cbSports:
                     if (checked) {
-                        mTopics.add(getString(R.string.sort_sports));
+                        mTopics.add(getString(R.string.sports));
                     } else {
-                        mTopics.remove(getString(R.string.sort_sports));
+                        mTopics.remove(getString(R.string.sports));
                     }
                     break;
             }
@@ -96,6 +93,22 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
         CheckBox checkArts = (CheckBox) view.findViewById(R.id.cbArts);
         CheckBox checkSports = (CheckBox) view.findViewById(R.id.cbSports);
         CheckBox checkFashion = (CheckBox) view.findViewById(R.id.cbFashion);
+
+        // Check the current boxes stored
+        ArrayList<String> newsDesks = getArguments().getStringArrayList("news_desks");
+        if (newsDesks.size() > 0) {
+            if (newsDesks.contains(getString(R.string.arts))){
+                checkArts.setChecked(true);
+            }
+            if (newsDesks.contains(getString(R.string.sports))) {
+                checkSports.setChecked(true);
+            }
+            if (newsDesks.contains(getString(R.string.fashion))){
+                checkFashion.setChecked(true);
+            }
+
+        }
+
         checkArts.setOnCheckedChangeListener(checkListener);
         checkFashion.setOnCheckedChangeListener(checkListener);
         checkSports.setOnCheckedChangeListener(checkListener);
@@ -108,7 +121,7 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
 
         mResultTextView = (TextView) view.findViewById(R.id.tvDateChosen);
         mButton = (Button) view.findViewById(R.id.btnSave);
-        mTopics = new ArrayList<String>();
+        mTopics = getArguments().getStringArrayList("news_desks");
         setupCheckboxes(view);
 
         mSpinner = (Spinner) view.findViewById(R.id.spinnerSortOrder);
@@ -118,8 +131,11 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         mSpinner.setAdapter(adapter);
+        // set the spinner selection to what's currently stored
+        mSpinner.setSelection(adapter.getPosition(getArguments().getString("sort")));
 
-        mResultTextView.setText(R.string.no_value);
+        // set begin date to what we have currently stored
+        mResultTextView.setText(getArguments().getString("begin_date"));
 
         mResultTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +151,8 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onFinishSettingsDialog((String) mResultTextView.getText(), mSpinner.getSelectedItem().toString(), mTopics.toString());
+                listener.onFinishSettingsDialog((String) mResultTextView.getText(), mSpinner.getSelectedItem().toString(), mTopics);
+                dismiss();
             }
         });
 
@@ -159,6 +176,6 @@ public class SettingsDialogFragment extends DialogFragment implements DatePicker
 
     @Override
     public void onDialogDateSet(int reference, int year, int monthOfYear, int dayOfMonth) {
-        mResultTextView.setText(getString(R.string.date_picker_result_value, monthOfYear, dayOfMonth, year));
+        mResultTextView.setText(getString(R.string.date_picker_result_value, String.format("%d", year), String.format("%02d", monthOfYear), String.format("%d", dayOfMonth)));
     }
 }

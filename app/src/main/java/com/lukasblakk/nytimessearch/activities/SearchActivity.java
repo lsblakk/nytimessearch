@@ -47,6 +47,9 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
     ArticleArrayAdapter adapter;
     RecyclerView rvArticles;
     String stQuery;
+    String beginDate;
+    String sortBy;
+    ArrayList<String> newsDesks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,17 +99,26 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
     private void showSettingsDialog() {
         FragmentManager fm = getSupportFragmentManager();
         SettingsDialogFragment settingsDialogFragment = SettingsDialogFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putString("begin_date", beginDate);
+        args.putStringArrayList("news_desks", newsDesks);
+        args.putString("sort", sortBy);
+        settingsDialogFragment.setArguments(args);
+
         settingsDialogFragment.show(fm, "fragement_settings");
     }
 
     // Append the next page of data into the adapter
     private void loadNextDataFromApi(final int offset) {
-        Log.d("DEBUG page: ", Integer.toString(offset));
+        Log.d("DEBUG LNDFA page: ", Integer.toString(offset));
         fetchArticles(offset);
     }
 
     public void setupViews() {
         articles = new ArrayList<>();
+        beginDate = "20170222";
+        sortBy = "newest";
+        newsDesks = new ArrayList<String>();
 
     }
 
@@ -121,18 +133,9 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
             @Override
             public boolean onQueryTextSubmit(String query) {
                 stQuery = query;
-                // Clear the old data
-                articles.clear();
-                // Notify the adapter of the update
-                adapter.notifyDataSetChanged();
-                // Reset endless scroll listener as we'll be performing a new search
-                scrollListener.resetState();
-
+                resetArticles();
                 // call loadNextDataFromAPI here for initial search results
                 loadNextDataFromApi(0);
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
                 return false;
             }
 
@@ -187,7 +190,16 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
     }
 
     public void fetchArticles(final int offset) {
+        Log.d("DEBUG fetchArticles: ", Integer.toString(offset));
 
+        StringBuilder newsDeskParams = new StringBuilder();
+        newsDeskParams.append("news_desk:(");
+        if (newsDesks.size() > 0) {
+            for (int x = 0; x < newsDesks.size(); x++){
+                newsDeskParams.append("\"" + newsDesks.get(x) + "\" ");
+            }
+        }
+        newsDeskParams.append(")");
 
         if (isNetworkAvailable() && isOnline()) {
             // should be a singleton
@@ -197,7 +209,14 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
             urlBuilder.addQueryParameter("api-key", "3456a86ca8b544179487d82c38862881");
             urlBuilder.addQueryParameter("page", Integer.toString(offset));
             urlBuilder.addQueryParameter("q", stQuery);
+            if (newsDesks.size() > 0) {
+                urlBuilder.addQueryParameter("fq", newsDeskParams.toString());
+            }
+            urlBuilder.addQueryParameter("begin_date", beginDate);
+            urlBuilder.addQueryParameter("sort", sortBy);
+
             String url = urlBuilder.build().toString();
+            Log.d("DEBUG url: ", url);
 
             Request request = new Request.Builder()
                     .url(url)
@@ -238,6 +257,10 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
                                     adapter.notifyItemRangeInserted(curSize, articles.size() - 1);
                                 }
 
+                                if (articles.size() == 0) {
+                                    Toast.makeText(getApplicationContext(), getString(R.string.no_results), Toast.LENGTH_SHORT).show();
+                                }
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -247,13 +270,28 @@ public class SearchActivity extends AppCompatActivity implements SettingsDialogF
 
             });
         } else {
-            // put some kind of message for internet not available?
+            // send user message that internet not available
+            Toast.makeText(getApplicationContext(), getString(R.string.no_network), Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void onFinishSettingsDialog(String datePicked, String sortOrder, String topics) {
-        Toast.makeText(this, "Settings are - Date: " + datePicked + " Sort Order: " + sortOrder + " Topics: " + topics , Toast.LENGTH_LONG).show();
+    public void onFinishSettingsDialog(String datePicked, String sortOrder, ArrayList<String> topics) {
+        beginDate = datePicked;
+        sortBy = sortOrder;
+        newsDesks = topics;
+        resetArticles();
+        fetchArticles(0);
     }
+
+    public void resetArticles() {
+        // Clear the old data
+        articles.clear();
+        // Notify the adapter of the update
+        adapter.notifyDataSetChanged();
+        // Reset endless scroll listener as we'll be performing a new search
+        scrollListener.resetState();
+    }
+
 
 }
